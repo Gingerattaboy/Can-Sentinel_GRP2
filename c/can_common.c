@@ -26,14 +26,23 @@ int can_open(const char *ifname) {
     return s;
 }
 
-int can_send(int sock, uint32_t id, const uint8_t *data, uint8_t dlc) {
+int can_send(int sock, uint32_t can_id, const uint8_t data[8], uint8_t dlc) {
     if (dlc > 8) return -1;
     struct can_frame f;
     memset(&f, 0, sizeof(f));
-    f.can_id = id;
+    f.can_id = can_id;
     f.can_dlc = dlc;
     memcpy(f.data, data, dlc);
     return write(sock, &f, sizeof(f)) == (ssize_t)sizeof(f) ? 0 : -1;
+}
+
+/* Byte 0 = value high byte, byte 1 = value low byte, byte 2 = counter,
+   bytes 3 to 7 = 0x00 padding (see docs/contract.md). */
+void can_pack(uint8_t data[8], uint16_t value, uint8_t counter) {
+    memset(data, 0, 8);
+    data[0] = value >> 8;
+    data[1] = value & 0xFF;
+    data[2] = counter;
 }
 
 static void normalize(struct timespec *t) {
@@ -42,14 +51,9 @@ static void normalize(struct timespec *t) {
 }
 
 /* Moves the schedule forward by one period (so it never drifts), then sleeps
-   until that time plus a small random jitter. */
-void sleep_until_next(struct timespec *next, long period_ns, long jitter_ns) {
+   until that exact time. */
+void sleep_until(struct timespec *next, long period_ns) {
     next->tv_nsec += period_ns;
     normalize(next);
-    struct timespec t = *next;
-    if (jitter_ns > 0) {
-        t.tv_nsec += (rand() % (2 * jitter_ns + 1)) - jitter_ns;
-        normalize(&t);
-    }
-    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, next, NULL);
 }
