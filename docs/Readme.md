@@ -15,7 +15,7 @@ and (in later weeks) an attacker script, a machine-learning detector and a dashb
 | Member 4 | Deepak Panwar | Python logger, data checker, dataset |
 
 The values every part of the project must agree on (CAN IDs, rates, frame layout, CSV columns) are in
-[`docs/contract.md`](docs/contract.md). Change them only with team agreement.
+[`docs/contract.md`](docs/contract.md).
 
 ## Repository layout
 
