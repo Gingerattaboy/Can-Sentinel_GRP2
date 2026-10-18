@@ -20,4 +20,4 @@ gcc -Wall -Wextra -O2 -o speed_ecu c/speed_ecu.c c/can_common.c -lm
 
 Notes:
 - `-lm` is needed because the ECUs use `sin()`.
-- Do not use `-std=c99` or `-std=c11`: `clock_gettime`, `struct timespec` and `M_PI` need GNU/POSIX features.
+- Do not use `-std=c99` or `-std=c11`: `clock_gettime`, `struct timespec` need GNU/POSIX features.
