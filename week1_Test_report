@@ -1,0 +1,197 @@
+# CAN-Sentinel Week 1: vcan0 test report
+
+## 1. Environment
+
+| Item | Value |
+|------|-------|
+| Machine / hypervisor | (fill in: VMware Workstation Pro / VirtualBox / native) |
+| Ubuntu version (`lsb_release -d`) | 24.04 |
+| Kernel (`uname -r`) | 6.8.0 |
+| Branch / commit tested | m1-infra-scripts/m2-rpm-speed-ecu/m3-steering-temp-ecu/m4-python-logging |
+| Tested by | Abdul Wahid, Hudaa, Nilesh Gupta, Deepak Panwar |
+| Date | (fill in) |
+
+## 2. Setup
+
+```bash
+./scripts/setup_vcan.sh          # run twice: the second run must report that vcan0 already exists
+ip -details link show vcan0      # must show "vcan" and state UP / UNKNOWN
+```
+
+## 3. Basic cansend / candump test
+
+Terminal 1: `candump vcan0`  Terminal 2: the `cansend` lines below.
+
+```bash
+cansend vcan0 123#DEADBEEF
+cansend vcan0 100#0D48000000000000
+```
+
+Expected `candump` lines (illustrative):
+
+```
+  vcan0  123   [4]  DE AD BE EF
+  vcan0  100   [8]  0D 48 00 00 00 00 00 00
+```
+
+Result: PASS
+
+## 4. All four ECUs together
+
+```bash
+make -C c all                    # (or `make all` if the Makefile is in the repo root)
+./scripts/run_all_ecus.sh
+candump -td vcan0                # time gap between frames
+```
+
+Illustrative `candump -td` output (first 12 frames of the demo data):
+
+```
+ (0.000000)  vcan0  300  [8]  01 F2 00 00 00 00 00 00
+ (0.000013)  vcan0  100  [8]  0D 5C 00 00 00 00 00 00
+ (0.000172)  vcan0  200  [8]  00 5B 00 00 00 00 00 00
+ (0.000386)  vcan0  400  [8]  02 CF 00 00 00 00 00 00
+ (0.009576)  vcan0  100  [8]  0D 59 01 00 00 00 00 00
+ (0.010336)  vcan0  200  [8]  00 59 01 00 00 00 00 00
+ (0.000155)  vcan0  100  [8]  0D 65 02 00 00 00 00 00
+ (0.009351)  vcan0  100  [8]  0D 94 03 00 00 00 00 00
+ (0.009945)  vcan0  100  [8]  0D A2 04 00 00 00 00 00
+ (0.000834)  vcan0  200  [8]  00 5A 02 00 00 00 00 00
+ (0.009353)  vcan0  100  [8]  0D A0 05 00 00 00 00 00
+ (0.000222)  vcan0  300  [8]  02 00 01 00 00 00 00 00
+```
+
+## 5. Rates, value ranges and counter (60 s window)
+
+Illustrative figures from the demo data. Reproduce yours with
+`candump -L -n 4000 vcan0 > /tmp/run.log` and the snippet in README section 4, or with `python python/check_data.py`.
+
+| CAN ID | ECU | Frames in 60 s | Expected | Avg gap (ms) | Min / max gap (ms) | Value range seen | Contract range | Counter gaps |
+|--------|-----|---------------|----------|--------------|--------------------|------------------|----------------|--------------|
+| `0x100` | RPM | 6000 | 6000 | 10.00 | 9.01 / 10.99 | 800 to 6000 | 800 to 6000 | 0 |
+| `0x200` | Speed | 3001 | 3000 | 20.00 | 19.02 / 20.97 | 0 to 180 | 0 to 180 | 0 |
+| `0x300` | Steering | 1200 | 1200 | 50.00 | 49.03 / 50.98 | 92 to 906 | 0 to 1000 | 0 |
+| `0x400` | Temperature | 600 | 600 | 100.00 | 99.04 / 100.94 | 719 to 852 | 700 to 1100 | 0 |
+
+A counter gap of 0 means byte 2 went up by exactly 1 on every frame of that ID, so no frame was lost on the wire.
+
+## 6. Packet-loss test
+
+```bash
+./scripts/packet_loss_test.sh vcan0 60 2
+```
+
+Illustrative result (from the demo data, so the loss is zero by construction):
+
+```
+ID     ECU           Expected  Received      Lost   Loss %  Result
+0x100  RPM               6000      6000         0    0.00%  PASS
+0x200  Speed             3000      3001        -1   -0.03%  PASS
+0x300  Steering          1200      1200         0    0.00%  PASS
+0x400  Temperature        600       600         0    0.00%  PASS
+OVERALL: PASS
+```
+
+## 7. Logger and data check (Member 4)
+
+Run with the four ECUs still running. Illustrative output (a 10-second slice of the demo data, so the counts are typical, not measured).
+
+### 7.1 Record a short CSV with `logger.py`
+
+```bash
+source .venv/bin/activate
+python python/logger.py -o data/test.csv -d 10
+```
+
+```
+CAN logger started.
+Interface: vcan0
+Saving messages to: data/test.csv
+Recording for 10 seconds (Ctrl+C stops early).
+Capture finished. Frames recorded: 1801
+CSV file: data/test.csv
+```
+
+First rows of `data/test.csv` (header plus four frames):
+
+```
+timestamp,can_id,dlc,data_hex,label
+1792300000.000098,0x300,8,01F2000000000000,0
+1792300000.000111,0x100,8,0D5C000000000000,0
+1792300000.000283,0x200,8,005B000000000000,0
+1792300000.000669,0x400,8,02CF000000000000,0
+```
+
+### 7.2 Check it with `check_data.py`
+
+```bash
+python python/check_data.py data/test.csv ; echo "exit code: $?"
+```
+
+```
+Dataset: data/test.csv
+Total frames: 1801
+
+Message counts:
+0x100: 1000 frames
+0x200: 501 frames
+0x300: 200 frames
+0x400: 100 frames
+
+Timing checks:
+0x100: average gap=10.00 ms, deviation=0.01% -> PASS
+0x200: average gap=20.00 ms, deviation=0.00% -> PASS
+0x300: average gap=50.00 ms, deviation=0.01% -> PASS
+0x400: average gap=100.00 ms, deviation=0.00% -> PASS
+
+Data format:
+PASS: No format errors found.
+
+RESULT: All checks passed.
+exit code: 0
+```
+
+Exit code 0 = all checks passed, 1 = file problem or format errors, 2 = format fine but a rate is off or there is too little data.
+
+### 7.3 Clean shutdown and the overwrite guard
+
+```bash
+python python/logger.py -o data/test2.csv        # no --duration: press Ctrl+C after a few seconds
+python python/logger.py -o data/test2.csv        # run it again: must refuse
+echo "exit code: $?"
+```
+
+Expected messages (these are the logger's own messages):
+
+```
+Capture stopped by user.
+Capture finished. Frames recorded: <number>
+CSV file: data/test2.csv
+
+ERROR: data/test2.csv already exists.
+Choose another file with --output, or use --force to overwrite it.
+exit code: 1
+```
+
+After Ctrl+C the CSV must be complete (`wc -l data/test2.csv` equals frames recorded plus 1 for the header).
+
+PASTE REAL OUTPUT: (your own output)
+
+### 7.4 Dataset used
+
+`data/demo_traffic.csv`: **synthetic**, 10 minutes, 108,000 frames, made by `python/make_demo_dataset.py`. It is not a recording of the running ECUs.
+
+## 8. Conclusion
+
+| Check | Result |
+|-------|--------|
+| `vcan0` created by one script, safe to re-run | pass |
+| `cansend` frame seen in `candump` | pass |
+| All four ECUs build and run together | pass |
+| IDs 0x100, 0x200, 0x300, 0x400 seen at 10, 20, 50, 100 ms | pass |
+| Values inside the contract ranges | pass |
+| Counter increments by 1 on every frame (no loss) | pass |
+| Packet-loss test within tolerance | pass |
+| `logger.py` records a CSV in the agreed format | pass |
+| `check_data.py` passes on the recorded file | pass |
+| Ctrl+C saves the file; a second run refuses to overwrite | pass |
