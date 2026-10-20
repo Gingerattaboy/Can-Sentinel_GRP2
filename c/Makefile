@@ -7,7 +7,8 @@ CFLAGS  := -Wall -Wextra -O2 -I.
 LDLIBS  := -lm
 
 ECUS    := rpm_ecu speed_ecu steering_ecu temp_ecu brake_ecu
-BINS    := $(addprefix build/,$(ECUS))
+TOOLS   := can_attacker
+BINS    := $(addprefix build/,$(ECUS) $(TOOLS))
 
 all: $(BINS)
 
