@@ -20,7 +20,7 @@ cleanup() {
 }
 trap cleanup INT TERM EXIT
 
-for ecu in rpm_ecu speed_ecu steering_ecu temp_ecu; do
+for ecu in rpm_ecu speed_ecu steering_ecu temp_ecu brake_ecu; do
     ./c/build/"$ecu" &
     PIDS+=($!)
 done
