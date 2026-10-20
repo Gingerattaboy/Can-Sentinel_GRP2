@@ -1,0 +1,6 @@
+timestamp            can_id                 dlc              data                         mode                target_id                 source
+0.0                  0x0C0                  8                B7 56 5D C4 95 DB 16 5E      benign                                        synthetic
+0.0                  0x1A0                  8                8F 67 3F BF CF CA 7F E9      benign                                        synthetic
+0.0                  0x2B0                  8                69 14 31 73 C6 75 19 68      benign                                        synthetic
+0.0                  0x100                  8                05 78 00 00 00 00 00 00      benign                                        synthetic
+0.0                  0x100                  8                03 20 00 00 00 00 00 00      insert               0x100                    synthetic
