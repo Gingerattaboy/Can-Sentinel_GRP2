@@ -5,7 +5,7 @@
 | Item | Value |
 |------|-------|
 | Machine / hypervisor | (fill in: VMware Workstation Pro / VirtualBox / native) |
-| Ubuntu version (`lsb_release -d`) | 24.04 |
+| Ubuntu version (`lsb_release -d`) | 24.04.2 LTS |
 | Kernel (`uname -r`) | 6.8.0 |
 | Branch / commit tested | m1-infra-scripts/m2-rpm-speed-ecu/m3-steering-temp-ecu/m4-python-logging |
 | Tested by | Abdul Wahid, Hudaa, Nilesh Gupta, Deepak Panwar |
