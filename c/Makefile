@@ -6,7 +6,7 @@ CC      := gcc
 CFLAGS  := -Wall -Wextra -O2 -I.
 LDLIBS  := -lm
 
-ECUS    := rpm_ecu speed_ecu steering_ecu temp_ecu
+ECUS    := rpm_ecu speed_ecu steering_ecu temp_ecu brake_ecu
 BINS    := $(addprefix build/,$(ECUS))
 
 all: $(BINS)
