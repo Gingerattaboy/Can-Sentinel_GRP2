@@ -15,10 +15,13 @@ IFACE="${1:-vcan0}"
 DURATION="${2:-60}"
 TOLERANCE="${3:-2}"     # allowed shortfall in percent
 
-# Expected send period per CAN ID in ms (from the contract). Keys are the
-# hex IDs as candump prints them for standard frames.
-declare -A PERIOD_MS=( [100]=10 [200]=20 [300]=50 [400]=100 )
-declare -A NAME=( [100]=RPM [200]=Speed [300]=Steering [400]=Temperature )
+# Expected send period per CAN ID in ms (from the contract, sections 2 and 12).
+# Keys are the hex IDs as candump prints them for standard frames.
+# NOTE: 0x500 (Brake) added per contract section 12 - "All five ECUs run
+# together from now on." Without this, every run (including an idle one)
+# falsely reported 0x500 as an "unexpected CAN ID".
+declare -A PERIOD_MS=( [100]=10 [200]=20 [300]=50 [400]=100 [500]=20 )
+declare -A NAME=( [100]=RPM [200]=Speed [300]=Steering [400]=Temperature [500]=Brake )
 
 # --- sanity checks ---------------------------------------------------------
 if ! command -v candump > /dev/null 2>&1; then
@@ -58,7 +61,7 @@ printf "%-6s %-12s %9s %9s %9s %8s  %s\n" "ID" "ECU" "Expected" "Received" "Lost
 printf "%-6s %-12s %9s %9s %9s %8s  %s\n" "------" "------------" "---------" "---------" "---------" "--------" "------"
 
 STATUS=0
-for id in 100 200 300 400; do
+for id in 100 200 300 400 500; do
     expected=$(( DURATION * 1000 / PERIOD_MS[$id] ))
     received="${COUNTS[$id]:-0}"
     lost=$(( expected - received ))
