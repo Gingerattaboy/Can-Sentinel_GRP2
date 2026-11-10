@@ -1,0 +1,24 @@
+{"type": "verdict", "window_start": 100.1, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 100.2, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 100.3, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "frames", "items": [[100.29999999999998, 1280, 8, "0102030405060708"]]}
+{"type": "verdict", "window_start": 100.4, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 100.5, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 100.6, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 100.7, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 100.8, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 100.9, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 101.0, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 101.1, "score": -0.2, "threat_level": 85, "is_anomaly": true, "counts": {}, "suspect_id": 1280, "suspect_z": 12.4}
+{"type": "verdict", "window_start": 101.2, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.3, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.4, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.5, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.6, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.7, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.8, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 101.9, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 102.0, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 102.1, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 102.2, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
+{"type": "verdict", "window_start": 102.3, "score": 0.1, "threat_level": 4, "is_anomaly": false, "counts": {}, "suspect_id": 1280, "suspect_z": 0.8}
