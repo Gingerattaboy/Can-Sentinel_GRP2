@@ -173,7 +173,7 @@ def main():
                     x = x.to_numpy()                          # model was trained without column names
                 raw = float(model.score_samples(x)[0])        # one model call per window
                 anomaly = -raw                                # higher = more anomalous
-                is_anom = raw < model.steps[-1][1].offset_    # same rule predict() uses (-1 = anomaly)
+                is_anom = bool(raw < model.steps[-1][1].offset_)    # same rule predict() uses (-1 = anomaly)
                 infer_ms = (time.perf_counter() - t0) * 1000
                 counts = dict(Counter(f"0x{f[1]:X}" for f in rows))
                 lvl = threat_level(anomaly, lo, hi)
