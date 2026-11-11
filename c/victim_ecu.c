@@ -12,6 +12,7 @@
  * Build:  gcc -O2 -Wall -Wextra -o victim_ecu victim_ecu.c
  * Run  :  ./victim_ecu                      (vcan0, writes data/victim_stats.csv)
  *         ./victim_ecu -o /tmp/stats.csv
+ *         ./victim_ecu -b 6                 (tag is in data byte 6 instead of the last byte, byte 7)
  */
 #define _GNU_SOURCE
 #include <errno.h>
@@ -33,6 +34,7 @@
 #define CONTROL_ID    0x7F0u
 #define MIN_GAP_NS    20000000LL          /* 20 ms between accepted frames in quarantine */
 #define ATTACK_TAG    0xA5                /* evaluation-only ground truth */
+#define DEFAULT_TAG_BYTE 7                /* index of the data byte that carries the tag */
 
 /* ---- rate limiter: pure function so it can be tested without a CAN bus ---- */
 typedef struct { int quarantine; long long last_accept_ns; int have_accept; } limiter_t;
@@ -89,11 +91,14 @@ int main(int argc, char **argv)
 {
     const char *ifname = "vcan0";
     const char *out_path = "data/victim_stats.csv";
+    int tag_byte = DEFAULT_TAG_BYTE;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-i") && i + 1 < argc) ifname = argv[++i];
         else if (!strcmp(argv[i], "-o") && i + 1 < argc) out_path = argv[++i];
-        else { fprintf(stderr, "usage: %s [-i vcan0] [-o stats.csv]\n", argv[0]); return 2; }
+        else if (!strcmp(argv[i], "-b") && i + 1 < argc) tag_byte = atoi(argv[++i]);
+        else { fprintf(stderr, "usage: %s [-i vcan0] [-o stats.csv] [-b tag_byte_index 0-7]\n", argv[0]); return 2; }
     }
+    if (tag_byte < 0 || tag_byte > 7) { fprintf(stderr, "-b must be 0 to 7\n"); return 2; }
     if (strcmp(ifname, "vcan0") != 0) {             /* project rule: vcan0 only */
         fprintf(stderr, "refusing to run on '%s': this tool is for vcan0 only\n", ifname);
         return 2;
@@ -158,7 +163,7 @@ int main(int argc, char **argv)
                         }
                     }
                 } else if (f.can_id == BRAKE_ID) {
-                    int tagged = (f.can_dlc > 0 && f.data[f.can_dlc - 1] == ATTACK_TAG);
+                    int tagged = (tag_byte < f.can_dlc && f.data[tag_byte] == ATTACK_TAG);
                     if (limiter_accept(&lim, ft)) {
                         accepted++;
                         if (tagged) spoofed++;
